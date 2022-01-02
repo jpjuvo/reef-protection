@@ -1,52 +1,26 @@
 # Reef protection
 
-## Install
+![banner](./media/banner.png)
 
-Install and activate conda env.
+### Detect starfish in real-time on underwater videos of coral reefs.
 
-```bash
-conda create -n reef --yes python=3.8 jupyter
-conda activate reef
+The Great Barrier Reef is under threat, in part because of the overpopulation of one particular starfish – the coral-eating crown-of-thorns starfish (or COTS for short). To know where the COTS are, a traditional reef survey method, called "Manta Tow", is performed by a snorkel diver. While towed by a boat, they visually assess the reef. This method faces clear limitations, including operational scalability, data resolution, reliability, and traceability.
 
-conda install -c conda-forge --yes cudnn
-conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
-```
+To scale up video-based surveying systems, Australia’s national science agency, CSIRO has teamed up with Google to develop innovative machine learning technology that can analyse large image datasets accurately, efficiently, and in near real-time. This is a solution codebase for the challenge.
 
-Install submodules (yolov5)
+## Data statistics
 
-```bash
-git submodule init && git submodule update
+- Video size : 1280 x 720
+- 3 video sets including 20 sequences
 
-cd yolov5 && pip install -r requirements.txt
-```
+#### Starfish bounding box statistics
+<img src="./media/labels_correlogram.jpg" alt="Correlogram" width="400" height="400">
 
-Install additional dependencies
+__________________________________________
 
-```
-pip install -r requirements.txt
-```
+## Install Python environment
 
-Download [competition data](https://www.kaggle.com/c/tensorflow-great-barrier-reef/data) and place it into `input` folder according to Folder structure below.  
-
-### Folder & file structure
-```
-root
-|_input                  (training data - gitignored)
-|  |_tensorflow-great-barrier-reef
-|    |_...
-|_configs                (configuration files)
-|  |_wandb_params.json   (wandb logging config)
-|  |_...
-|media                   (images etc.)
-|  |_...
-|_notebooks              (jupyter notebooks)
-|  |_...
-|_src                    (python files)
-|  |_...
-|_...
-```
-
-_____________________________
+See [instructions](INSTALL.md)
 
 ## Training models
 
@@ -70,6 +44,8 @@ This saves `./input/train_folds.csv` which is a copy of train.csv with additiona
 
 
 ### 2. YOLOv5
+
+For [Weights&Biases](wandb.ai) logging, install wandb `pip install wandb` and login to your profile `wandb login`. Set your username to ENTITY in [configs/wandb.config](configs/wandb.config).
 
 #### 2.1 Prepare dataset
 

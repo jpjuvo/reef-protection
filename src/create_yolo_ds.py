@@ -83,20 +83,20 @@ for fold in range(5):
 
     with open(os.path.join(SAVE_ROOT,f'{fold}_train_images.txt'), 'w') as f:
         for fn in train_fns:
-            f.write(f'{fn}\n')
+            f.write(f'{ os.path.join("images", os.path.basename(fn)) }\n')
     
     with open(os.path.join(SAVE_ROOT,f'{fold}_val_images.txt'), 'w') as f:
         for fn in val_fns:
-            f.write(f'{fn}\n')
+            f.write(f'{ os.path.join("images", os.path.basename(fn)) }\n')
 
     yaml_fn = os.path.join(SAVE_ROOT, f'fold_{fold}.yaml')
     if os.path.exists(yaml_fn):
         os.remove(yaml_fn)
         
     dict_file = {
-        'train' : os.path.join(SAVE_ROOT, f'{fold}_train_images.txt'),
-        'val' : os.path.join(SAVE_ROOT, f'{fold}_val_images.txt'),
-        'test' : os.path.join(SAVE_ROOT, f'{fold}_val_images.txt'),
+        'train' : os.path.join('..', SAVE_ROOT, f'{fold}_train_images.txt'),
+        'val' : os.path.join('..', SAVE_ROOT, f'{fold}_val_images.txt'),
+        'test' : os.path.join('..', SAVE_ROOT, f'{fold}_val_images.txt'),
         'nc' : 1,
         'names' : [
             'starfish'
