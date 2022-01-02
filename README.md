@@ -52,8 +52,14 @@ For [Weights&Biases](wandb.ai) logging, install wandb `pip install wandb` and lo
 
 Yolo requires training images and annotations in certain form. Running this python script symlinks images to `input/yolo_ds/images/` folder, creates annotation files to `input/yolo_ds/labels/`, and prepares CV-fold training yaml configs to `input/yolo_ds/`.
 
+The number of background samples (frames without annotations) is reduced to avoid saturating training with negative samples. Training set BG sample percentage is kept at ~10% (random subsets) but all samples are kept for validation folds.
+
 ```bash
 python src/create_yolo_ds.py
 ```
 
 #### 2.2 Train fold models
+
+```bash
+sh train_yolo.sh
+```
