@@ -102,11 +102,11 @@ for fold in range(5):
 
     with open(os.path.join(SAVE_ROOT,f'{fold}_train_images.txt'), 'w') as f:
         for fn in train_fns:
-            f.write(f'{ os.path.join("images", os.path.basename(fn)) }\n')
+            f.write(f'{ os.path.join("./images", os.path.basename(fn)) }\n')
     
     with open(os.path.join(SAVE_ROOT,f'{fold}_val_images.txt'), 'w') as f:
         for fn in val_fns:
-            f.write(f'{ os.path.join("images", os.path.basename(fn)) }\n')
+            f.write(f'{ os.path.join("./images", os.path.basename(fn)) }\n')
 
     yaml_fn = os.path.join(SAVE_ROOT, f'fold_{fold}.yaml')
     if os.path.exists(yaml_fn):

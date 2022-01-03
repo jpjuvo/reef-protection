@@ -22,7 +22,7 @@ do
     --epochs $EPOCHS \
     --data ../input/yolo_ds/fold_"$fold".yaml \
     --hyp ../configs/"$HYPERPARAMS" \
-    --cfg models/"$MODEL".yaml \
+    --cfg models/hub/"$MODEL".yaml \
     --weights $WEIGHTS \
     --name "$NAME""$fold" \
     --entity $ENTITY \
