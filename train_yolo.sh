@@ -1,7 +1,7 @@
 #!/bin/bash
 . configs/yolo_base.config
 
-NAME=clahe_"$MODEL"-"$EPOCHS"ep
+NAME=AUG2_"$MODEL"-"$EPOCHS"ep
 
 # Printouts
 echo NAME "$NAME"
@@ -20,8 +20,9 @@ do
     --img $IMG_SZ \
     --batch $BATCH_SIZE \
     --epochs $EPOCHS \
-    --data ../input/yolo_enhanced_ds/fold_"$fold".yaml \
+    --data ../input/yolo_ds/fold_"$fold".yaml \
     --hyp ../configs/"$HYPERPARAMS" \
+    --adam \
     --cfg models/hub/"$MODEL".yaml \
     --weights $WEIGHTS \
     --name "$NAME""$fold" \

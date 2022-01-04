@@ -63,3 +63,8 @@ python src/create_yolo_ds.py
 ```bash
 sh train_yolo.sh
 ```
+
+You may tune [augmentation parameters](./configs/hyp.reef-aug.yaml) and check the results by running `python ./src/tests/test_yolov5_aug.py`
+
+<img src="./media/augmentation_sample.jpg" alt="Augmentations" width="400" height="400">
+
