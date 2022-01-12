@@ -68,3 +68,14 @@ You may tune [augmentation parameters](./configs/hyp.reef-aug.yaml) and check th
 
 <img src="./media/augmentation_sample.jpg" alt="Augmentations" width="400" height="400">
 
+## Additional modules
+
+### Scene cut detection
+
+The video files contain multiple sequences and it's important to know when a scen cut happens to reset tracking. File name indices are good indication in the training set (e.g. gap between image 123.jpg and 200.jpg) but we cannot rely on this in private test.
+
+Thus, I wrote a simple scene cut detection module `SceneCutDetector` that uses estimated motion changes to detect inconsistent optical flow.
+
+`python src/tests/test_scenecut_detector.py`
+
+![scene cuts](./media/scenecut_detection.jpg)
