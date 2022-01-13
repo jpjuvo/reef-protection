@@ -48,6 +48,10 @@ This saves `./input/train_folds.csv` which is a copy of train.csv with additiona
 
 For [Weights&Biases](wandb.ai) logging, install wandb `pip install wandb` and login to your profile `wandb login`. Set your username to ENTITY in [configs/wandb.config](configs/wandb.config).
 
+#### YOLO metric to competition metric
+
+See [instructions](YOLO_METRIC.md) to modify yolo metrics to competition metrics.
+
 #### 2.1 Prepare dataset
 
 Yolo requires training images and annotations in certain form. Running this python script symlinks images to `input/yolo_ds/images/` folder, creates annotation files to `input/yolo_ds/labels/`, and prepares CV-fold training yaml configs to `input/yolo_ds/`.
