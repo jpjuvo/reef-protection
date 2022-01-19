@@ -32,7 +32,10 @@ fold_all_fns = [[] for _ in range(5)]
 fold_fg_fns = [[] for _ in range(5)]
 fold_bg_fns = [[] for _ in range(5)]
 
-BG_KEEP_EVERY_N = 40
+# 40 is better than 160 (better recall)
+# 10 is better than 40
+# 10 is better than 1
+BG_KEEP_EVERY_N = 10
 
 for idx in tqdm(range(len(df))):
     video_id = df.iloc[idx]['video_id']
