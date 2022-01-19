@@ -68,6 +68,31 @@ You may tune [augmentation parameters](./configs/hyp.reef-aug.yaml) and check th
 
 <img src="./media/augmentation_sample.jpg" alt="Augmentations" width="400" height="400">
 
+### 3. Box validator
+
+Starfish detection crop segmentation model is used to filter out some of the false positive detections. We train a model to segment starfish ellipses from the detected crops. All predictions are resized (linear interpolation) to 128x128 rgb boxes.
+
+![boxtractor](./media/boxtractor.jpg)
+
+#### Create segmentation dataset
+
+To ensure the model is trained with difficult enough samples, we generate the dataset directly from Yolo model validation fold predictions. Detection threshold should be tuned for each fold model such that we get 50% of FP detections and 50% of TP predictions.
+
+Yolo dataset (step 2.1) is a prerequisite for this step. To generate data, run with each fold model separately:
+
+```shell
+FOLD=2
+THRESHOLD=0.2
+IM_SIZE=3000
+YOLO_PTH="./yolov5/reef/3000_fold2_yolov5m-20ep2/weights/best.pt"
+
+python src/create_segmentation_ds.py \
+    --fold=$FOLD \
+    --yolo_pth=$YOLO_PTH \
+    --im_size=$IM_SIZE \
+    --threshold=$THRESHOLD
+```
+
 ## Additional modules
 
 ### Scene cut detection
