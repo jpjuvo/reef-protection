@@ -72,6 +72,12 @@ You may tune [augmentation parameters](./configs/hyp.reef-aug.yaml) and check th
 
 <img src="./media/augmentation_sample.jpg" alt="Augmentations" width="400" height="400">
 
+After training, models can be export to onnx for faster inference. Example conversion script that outputs `best.onnx` model.
+
+```python
+python ./yolov5/export.py --weights "./yolov5/reef/3000_fold3_yolov5m-20ep3/weights/best.pt" --include onnx
+```
+
 ### 3. Box validator
 
 Starfish detection crop segmentation model is used to filter out some of the false positive detections. We train a model to segment starfish ellipses from the detected crops. All predictions are resized (linear interpolation) to 128x128 rgb boxes.

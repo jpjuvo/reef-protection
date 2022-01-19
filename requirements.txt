@@ -3,3 +3,4 @@ PyYAML
 tensorflow>=2.3
 pycocotools
 norfair[video]
+onnx
