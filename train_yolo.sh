@@ -1,7 +1,7 @@
 #!/bin/bash
 . configs/yolo_base.config
 
-NAME=SC.3_OBJW3_fold1_"$MODEL"-"$EPOCHS"ep
+NAME=3000_fold3_"$MODEL"-"$EPOCHS"ep
 
 # Printouts
 echo NAME "$NAME"
@@ -13,7 +13,7 @@ echo HYPERPARAMS "$HYPERPARAMS"
 
 cd yolov5
 
-for fold in 1 #0 1 2 3 4 
+for fold in 3 #0 1 2 3 4 
 do
   echo Training fold "$fold"
   
