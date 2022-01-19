@@ -1,10 +1,7 @@
 #!/bin/bash
 . configs/yolo_base.config
 
-NAME=3000_fold3_"$MODEL"-"$EPOCHS"ep
-
 # Printouts
-echo NAME "$NAME"
 echo IMG_SZ "$IMG_SZ"
 echo EPOCHS "$EPOCHS"
 echo BATCH_SIZE "$BATCH_SIZE"
@@ -13,15 +10,16 @@ echo HYPERPARAMS "$HYPERPARAMS"
 
 cd yolov5
 
-for fold in 3 #0 1 2 3 4 
+for fold in 4 #0 1 2 3 4 
 do
   echo Training fold "$fold"
+  NAME="$IMG_SZ"_fold"$fold"_"$MODEL"-"$EPOCHS"ep
+  echo NAME "$NAME"
   
   # yolo5x6 models are in /hub subdir
   # --cfg models/hub/"$MODEL".yaml \
   # yolo5 models on models dir
   # --cfg models/"$MODEL".yaml \
-
 
   python train.py \
     --img $IMG_SZ \
@@ -32,7 +30,7 @@ do
     --adam \
     --cfg models/"$MODEL".yaml \
     --weights $WEIGHTS \
-    --name "$NAME""$fold" \
+    --name "$NAME" \
     --entity $ENTITY \
     --project $PROJECT
 done
