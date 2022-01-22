@@ -1,10 +1,13 @@
 import os
 import numpy as np
+import torch
+import torchvision
 import cv2
 import torch
 import sys
 import pandas as pd
 import torch
+import onnxruntime
 
 sys.path.append('.')
 sys.path.append('..')
@@ -73,6 +76,89 @@ def _forward_augment_reef(self, x):
     y = self._clip_augmented(y)  # clip augmented tails
     return torch.cat(y, 1), None  # augmented inference, train
 
+class OnnxReefModel:
+
+    def __init__(self, onnx_pth, iou_th=0.5, conf_th=0.2):
+        providers = ['CUDAExecutionProvider']
+        self.session = session = onnxruntime.InferenceSession(
+            onnx_pth, 
+            providers=providers
+            )
+        self.iou_th = iou_th
+        self.conf_th = conf_th
+
+    def _resize(self, img:np.ndarray, size:int):
+        """ 
+        Resize image keeping aspect mostly so that
+        largest side closest 32 divisible integer to size
+
+        Params:
+            img (ndarray) : rgb image
+            size (int) : max side (output size is rounded to closest 32 div)
+
+        Returns:
+            img (ndarray) : resized rgb image
+        """
+        size_32 = int(round(size / 32) * 32)
+        im_h, im_w = img.shape[:2]
+        if im_w > im_h:
+            new_w = size_32
+            new_h = (size_32 / im_w) * im_h
+            new_h = int(round(new_h / 32) * 32)
+        else:
+            new_h = size_32
+            new_w = (size_32 / im_h) * im_w
+            new_w = int(round(new_w / 32) * 32)
+        img = cv2.resize(img, (int(new_w), int(new_h)))
+        return img
+
+    def _nms(self, preds):
+        """ Apply nms to preds """
+        
+        bboxes = preds[:,:4]
+        confs = preds[:,4]
+        good_idxs = np.argwhere(confs > self.conf_th)
+        if len(good_idxs) == 0:
+            return np.array([]),np.array([])
+        
+        bboxes = torch.tensor(bboxes[good_idxs.reshape(-1)])
+        confs = torch.tensor(confs[good_idxs.reshape(-1)])
+
+        keep_idxs = torchvision.ops.nms(bboxes, confs, self.iou_th)
+        bboxes = bboxes[keep_idxs].numpy()
+        confs = confs[keep_idxs].numpy()
+        return bboxes, confs
+    
+    def __call__(self, img, size, augment=False):
+
+        old_h, old_w = img.shape[:2]
+        img = self._resize(img, size)
+        new_h, new_w = img.shape[:2]
+
+        # Prepare to input form: [0-1] range (bs,c,h,w), float
+        img = img.transpose((2, 0, 1))
+        img = np.ascontiguousarray(img)
+        input_im = np.expand_dims(img,0).astype(np.float32) / 255.
+        
+        y = self.session.run(
+            [self.session.get_outputs()[0].name], 
+            {self.session.get_inputs()[0].name: input_im})[0]
+        
+        # nms
+        bboxes, confs = self._nms(y[0])
+        
+        if len(bboxes) > 0:
+            # scale detections back to original image size
+            scale_x = new_w / old_w
+            scale_y = new_h / old_h
+            bboxes[..., 0] /= scale_x  # x
+            bboxes[..., 1] /= scale_y  # y
+            bboxes[..., 2] /= scale_x  # w
+            bboxes[..., 3] /= scale_y  # h
+            bboxes[..., 0] -= bboxes[..., 2] / 2
+            bboxes[..., 1] -= bboxes[..., 3] / 2
+        
+        return bboxes, confs
 class ReefDetector:
     
     def __init__(self, 
@@ -86,20 +172,28 @@ class ReefDetector:
         
         self.device = device
         self.im_size = im_size
-        self.model = load_hub_model(
-            path=weights, 
-            conf=conf_thres, 
-            iou=iou_thres, 
-            max_det=max_det,
-            hub_path=hub_path
-        )
-        self.model.to(device)
-        
-        # custom augmentation routine
-        self.model.model.model._forward_augment = _forward_augment_reef.__get__(
-            self.model.model.model,
-            YoloModel
-        )
+        if weights.endswith('.pt'):
+            self.modeltype = '.pt'
+            self.model = load_hub_model(
+                path=weights, 
+                conf=conf_thres, 
+                iou=iou_thres, 
+                max_det=max_det,
+                hub_path=hub_path
+            )
+            self.model.to(device)
+            self.model.model.model._forward_augment = _forward_augment_reef.__get__(
+                self.model.model.model,
+                YoloModel
+            )
+        elif weights.endswith('.onnx'):
+            self.modeltype = '.onnx'
+            self.model = OnnxReefModel(
+                weights,
+                iou_th=iou_thres,
+                conf_th=conf_thres)
+        else:
+            raise f"Unknown weights path file format {weights}" 
         
     def __call__(self, np_im, 
                  augment=False
@@ -114,15 +208,19 @@ class ReefDetector:
         height,width = np_im.shape[:2]
         results = self.model(np_im, size=self.im_size, augment=augment)
         
-        preds   = results.pandas().xyxy[0]
-        bboxes  = preds[['xmin','ymin','xmax','ymax']].values
-        if len(bboxes) > 0:
-            bboxes  = voc2coco(bboxes,height,width).astype(int)
-            confs   = preds.confidence.values
+        if self.modeltype == '.pt':
+            preds   = results.pandas().xyxy[0]
+            bboxes  = preds[['xmin','ymin','xmax','ymax']].values
+            if len(bboxes) > 0:
+                bboxes  = voc2coco(bboxes,height,width).astype(int)
+                confs   = preds.confidence.values
+            else:
+                bboxes = []
+                confs = []
         else:
-            bboxes = []
-            confs = []
-            
+            bboxes, confs = results
+            bboxes = np.round(bboxes).astype(int)
+        
         # Sort to descending confidence order
         # make sure confs are unique before sorting
         confs = list(confs)
