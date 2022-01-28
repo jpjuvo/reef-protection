@@ -72,10 +72,32 @@ You may tune [augmentation parameters](./configs/hyp.reef-aug.yaml) and check th
 
 <img src="./media/augmentation_sample.jpg" alt="Augmentations" width="400" height="400">
 
-After training, models can be export to onnx for faster inference. Example conversion script that outputs `best.onnx` model.
+##### Onnx
+
+After training, models can be export to onnx. However, I didn't manage to get same inference speed with onnx as with original models. Example conversion script that outputs `best.onnx` model.
 
 ```python
-python ./yolov5/export.py --weights "./yolov5/reef/3000_fold3_yolov5m-20ep3/weights/best.pt" --include onnx
+python ./yolov5/export.py --weights "./yolov5/reef/3000_fold3_yolov5m-20ep3/weights/best.pt" --include onnx --dynamic
+
+# optimization, saves "_opt.onnx" and "_quant.onnx" models
+ptyhon src/optimize_onnx.py --onnx_pth="./yolov5/reef/3000_fold3_yolov5m-20ep3/weights/best.onnx"
+```
+
+##### Evaluate
+
+To evaluate model on competition F2 metric, you may run:
+
+```bash
+FOLD=3
+THRESHOLD=0.2
+IM_SIZE=3000
+YOLO_PTH="./yolov5/reef/3000_fold3_yolov5m-20ep3/weights/best.pt"
+
+python src/evaluate_yolo.py \
+    --fold=$FOLD \
+    --yolo_pth=$YOLO_PTH \
+    --im_size=$IM_SIZE \
+    --threshold=$THRESHOLD
 ```
 
 ### 3. Box validator
