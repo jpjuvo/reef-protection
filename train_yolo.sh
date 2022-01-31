@@ -10,10 +10,10 @@ echo HYPERPARAMS "$HYPERPARAMS"
 
 cd yolov5
 
-for fold in 4 #0 1 2 3 4 
+for fold in 0 #0 1 2 3 4 
 do
   echo Training fold "$fold"
-  NAME="$IMG_SZ"_fold"$fold"_"$MODEL"-"$EPOCHS"ep
+  NAME=SAMPLE5_"$IMG_SZ"_fold"$fold"_"$MODEL"-"$EPOCHS"ep
   echo NAME "$NAME"
   
   # yolo5x6 models are in /hub subdir
