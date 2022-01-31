@@ -121,10 +121,12 @@ class OnnxReefModel:
         if len(good_idxs) == 0:
             return np.array([]),np.array([])
         
-        bboxes = torch.tensor(bboxes[good_idxs.reshape(-1)])
+        bboxes = torch.tensor((bboxes[good_idxs.reshape(-1)]).astype(np.float32))
+        bboxes_xyxy = bboxes.clone()
+        bboxes_xyxy[:,2:] = bboxes_xyxy[:,:2] + bboxes_xyxy[:,2:]
         confs = torch.tensor(confs[good_idxs.reshape(-1)])
 
-        keep_idxs = torchvision.ops.nms(bboxes, confs, self.iou_th)
+        keep_idxs = torchvision.ops.nms(bboxes_xyxy, confs, self.iou_th)
         bboxes = bboxes[keep_idxs].numpy()
         confs = confs[keep_idxs].numpy()
         return bboxes, confs
@@ -193,18 +195,9 @@ class ReefDetector:
                 iou_th=iou_thres,
                 conf_th=conf_thres)
         else:
-            raise f"Unknown weights path file format {weights}" 
-        
-    def __call__(self, np_im, 
-                 augment=False
-                ):
-        """ 
-        Returns model predictions from rgb numpy image
-        
-        Returns
-        sorted_pred_list : list of x1,y1,x2,y2,conf in conf descending order
-        """
-        
+            raise f"Unknown weights path file format {weights}"
+
+    def _single_inference(self, np_im, augment):
         height,width = np_im.shape[:2]
         results = self.model(np_im, size=self.im_size, augment=augment)
         
@@ -220,6 +213,51 @@ class ReefDetector:
         else:
             bboxes, confs = results
             bboxes = np.round(bboxes).astype(int)
+        return bboxes, confs
+
+    def _split_to_tile(self, np_im, n_rows=2, n_cols=2, overlap_p=0.2):
+        orig_h, orig_w = np_im.shape[:2]
+        overlap_w = 
+        for row in n_rows:
+            for col in n_cols:
+
+
+
+    def _tiled_inference(self, np_im, augment):
+        height,width = np_im.shape[:2]
+
+        # split to tiles
+
+        results = self.model(np_im, size=self.im_size, augment=augment)
+        
+        if self.modeltype == '.pt':
+            preds   = results.pandas().xyxy[0]
+            bboxes  = preds[['xmin','ymin','xmax','ymax']].values
+            if len(bboxes) > 0:
+                bboxes  = voc2coco(bboxes,height,width).astype(int)
+                confs   = preds.confidence.values
+            else:
+                bboxes = []
+                confs = []
+        else:
+            bboxes, confs = results
+            bboxes = np.round(bboxes).astype(int)
+        return bboxes, confs
+        
+    def __call__(self, np_im, 
+                 augment=False,
+                 tiled=False
+                ):
+        """ 
+        Returns model predictions from rgb numpy image
+        
+        Returns
+        sorted_pred_list : list of x1,y1,x2,y2,conf in conf descending order
+        """
+        if tiled:
+            bboxes, confs = self._tiled_inference(np_im=np_im, augment=augment)
+        else:
+            bboxes, confs = self._single_inference(np_im=np_im, augment=augment)
         
         # Sort to descending confidence order
         # make sure confs are unique before sorting

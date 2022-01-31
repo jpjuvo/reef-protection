@@ -1,9 +1,5 @@
-import onnx
 import onnxruntime as rt
 from onnxruntime.quantization import quantize_dynamic, QuantType
-import os
-import cv2
-import numpy as np
 import argparse
 
 def main(onnx_pth):
@@ -12,9 +8,6 @@ def main(onnx_pth):
     quant_onnx = onnx_pth.replace('.onnx', '_quant.onnx')
 
     sess_options = rt.SessionOptions()
-
-    sess_options.intra_op_num_threads = 2
-    sess_options.execution_mode = rt.ExecutionMode.ORT_PARALLEL
 
     # Set graph optimization level
     sess_options.graph_optimization_level = rt.GraphOptimizationLevel.ORT_ENABLE_ALL
