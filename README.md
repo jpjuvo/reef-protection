@@ -74,7 +74,7 @@ You may tune [augmentation parameters](./configs/hyp.reef-aug.yaml) and check th
 
 ##### Onnx
 
-After training, models can be export to onnx. However, I didn't manage to get same inference speed with onnx as with original models. Example conversion script that outputs `best.onnx` model.
+After training, models can be export to onnx. However, I didn't manage to get the same inference speed with onnx (with or without onnx optimization) as with original models. Example conversion script that outputs `best.onnx` model.
 
 ```python
 python ./yolov5/export.py --weights "./yolov5/reef/3000_fold3_yolov5m-20ep3/weights/best.pt" --include onnx --dynamic
@@ -100,7 +100,11 @@ python src/evaluate_yolo.py \
     --threshold=$THRESHOLD
 ```
 
-### 3. Box validator
+### 3. YOLOX
+
+
+
+### 4. Box validator
 
 Starfish detection crop segmentation model is used to filter out some of the false positive detections. We train a model to segment starfish ellipses from the detected crops. All predictions are resized (linear interpolation) to 128x128 rgb boxes.
 

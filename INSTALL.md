@@ -10,15 +10,19 @@ conda install -c conda-forge --yes cudnn
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 ```
 
-Install submodules (yolov5)
+## Install submodules 
+
+### Yolov5 and YOLOX
 
 ```bash
 git submodule init && git submodule update
 
-cd yolov5 && pip install -r requirements.txt
+cd yolov5 && pip install -r requirements.txt && cd ..
+
+cd YOLOX && pip install -v -e . && cd ..
 ```
 
-Install additional dependencies
+## Install additional dependencies
 
 ```
 pip install -r requirements.txt

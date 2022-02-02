@@ -18,6 +18,7 @@ mmdet/
 /yolov5
 /runs
 .svn/
+/YOLOX
 
 
 *.pth
