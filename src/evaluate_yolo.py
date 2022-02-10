@@ -13,7 +13,7 @@ from src.eval_utils import compute_f2
 
 dir_path = './input/yolo_ds/'
 
-def main(fold:int, yolo_pth:str, threshold:float=0.2, im_size:int=1280):
+def main(fold:int, yolo_pth:str, threshold:float=0.2, im_size:int=1280, square:bool=False):
     
     with open(dir_path + f'{fold}_val_images.txt') as file:
         lines = file.readlines()
@@ -24,7 +24,8 @@ def main(fold:int, yolo_pth:str, threshold:float=0.2, im_size:int=1280):
         im_size=im_size,
         conf_thres=threshold,
         device='cuda',
-        hub_path='./yolov5/'
+        hub_path='./yolov5/',
+        square=square
     )
 
     competition_f2, _ = compute_f2(
@@ -40,11 +41,13 @@ if __name__ == '__main__':
     parser.add_argument('--yolo_pth', type=str)
     parser.add_argument('--threshold', type=float, default=0.2)
     parser.add_argument('--im_size', type=int, default=1280)
+    parser.add_argument('--square', type=bool, default=False)
 
     params = parser.parse_args()
     fold = params.fold
     yolo_pth = params.yolo_pth
     threshold = params.threshold
     im_size = params.im_size
-    
-    main(fold, yolo_pth, threshold, im_size)
+    square = params.square
+
+    main(fold, yolo_pth, threshold, im_size, square)

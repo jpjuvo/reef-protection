@@ -78,7 +78,7 @@ def _forward_augment_reef(self, x):
 
 class OnnxReefModel:
 
-    def __init__(self, onnx_pth, iou_th=0.5, conf_th=0.2):
+    def __init__(self, onnx_pth, iou_th=0.5, conf_th=0.2, square=False):
         providers = ['CUDAExecutionProvider']
         self.session = session = onnxruntime.InferenceSession(
             onnx_pth, 
@@ -86,6 +86,7 @@ class OnnxReefModel:
             )
         self.iou_th = iou_th
         self.conf_th = conf_th
+        self.square = square
 
     def _resize(self, img:np.ndarray, size:int):
         """ 
@@ -112,6 +113,10 @@ class OnnxReefModel:
         img = cv2.resize(img, (int(new_w), int(new_h)))
         return img
 
+    def _resize_square(self, img:np.ndarray, size:int):
+        img = cv2.resize(img, (int(size), int(size)))
+        return img
+
     def _nms(self, preds):
         """ Apply nms to preds """
         
@@ -134,7 +139,7 @@ class OnnxReefModel:
     def __call__(self, img, size, augment=False):
 
         old_h, old_w = img.shape[:2]
-        img = self._resize(img, size)
+        img = self._resize_square(img, size) if self.square else self._resize(img, size)
         new_h, new_w = img.shape[:2]
 
         # Prepare to input form: [0-1] range (bs,c,h,w), float
@@ -170,6 +175,7 @@ class ReefDetector:
                  conf_thres=0.2,
                  iou_thres=0.5,
                  max_det=100,
+                 square=False,
                  hub_path='./yolov5/'):
         
         self.device = device
@@ -193,7 +199,8 @@ class ReefDetector:
             self.model = OnnxReefModel(
                 weights,
                 iou_th=iou_thres,
-                conf_th=conf_thres)
+                conf_th=conf_thres,
+                square=square)
         else:
             raise f"Unknown weights path file format {weights}"
 
@@ -215,12 +222,11 @@ class ReefDetector:
             bboxes = np.round(bboxes).astype(int)
         return bboxes, confs
 
-    def _split_to_tile(self, np_im, n_rows=2, n_cols=2, overlap_p=0.2):
-        orig_h, orig_w = np_im.shape[:2]
-        overlap_w = 
-        for row in n_rows:
-            for col in n_cols:
-
+    #def _split_to_tile(self, np_im, n_rows=2, n_cols=2, overlap_p=0.2):
+    #    orig_h, orig_w = np_im.shape[:2]
+    #    overlap_w = 
+    #    for row in n_rows:
+    #        for col in n_cols:
 
 
     def _tiled_inference(self, np_im, augment):
