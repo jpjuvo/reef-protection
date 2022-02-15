@@ -6,17 +6,13 @@
 
 The Great Barrier Reef is under threat, in part because of the overpopulation of one particular starfish – the coral-eating crown-of-thorns starfish (or COTS for short). To know where the COTS are, a traditional reef survey method, called "Manta Tow", is performed by a snorkel diver. While towed by a boat, they visually assess the reef. This method faces clear limitations, including operational scalability, data resolution, reliability, and traceability.
 
-To scale up video-based surveying systems, Australia’s national science agency, CSIRO has teamed up with Google to develop innovative machine learning technology that can analyse large image datasets accurately, efficiently, and in near real-time. This is a solution codebase for the challenge.
+To scale up video-based surveying systems, Australia’s national science agency, CSIRO has teamed up with Google to develop innovative machine learning technology that can analyse large image datasets accurately, efficiently, and in near real-time. This is a solution codebase for the challenge and it reached the [51st place](https://www.kaggle.com/c/tensorflow-great-barrier-reef/leaderboard?tab=private) (out of 2100).
 
 ## Data statistics
 
 - Video size : 1280 x 720
 - 3 video sets including 20 sequences
 - 20.9 % of all video frames are annotated
-
-#### Starfish bounding box statistics
-<img src="./media/labels_correlogram.jpg" alt="Correlogram" width="400" height="400">
-
 __________________________________________
 
 ## Install Python environment
@@ -102,7 +98,11 @@ python src/evaluate_yolo.py \
 
 ### 3. YOLOX
 
+```bash
+sh train_yolox.sh
+```
 
+You may tune [training parameters](./configs/yolox.config).
 
 ### 4. Box validator
 
@@ -144,3 +144,7 @@ Thus, I wrote a simple scene cut detection module `SceneCutDetector` that uses e
 `python src/tests/test_scenecut_detector.py`
 
 ![scene cuts](./media/scenecut_detection.jpg)
+
+## Solution for the challenge
+
+The challenge submission was a combination of YOLOX and YOLOv5 fold models ensembled together with [Weighted-boxes-fusion](https://github.com/ZFTurbo/Weighted-Boxes-Fusion) non-max suppression technique. The detected prediction scores were weighted down by box validator segmentation scores and low score detections were thresholded out. [Norfair multi-object tracking](https://github.com/tryolabs/norfair) was used to fill missing detections when an object had been tracked for a few frames. Scene cut detection was used to reset the tracking module.
