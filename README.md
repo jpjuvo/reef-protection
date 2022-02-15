@@ -106,7 +106,7 @@ python src/evaluate_yolo.py \
 
 ### 4. Box validator
 
-Starfish detection crop segmentation model is used to filter out some of the false positive detections. We train a model to segment starfish ellipses from the detected crops. All predictions are resized (linear interpolation) to 128x128 rgb boxes.
+Starfish detection crop segmentation model is used to filter out some of the false positive detections. I trained a model to segment starfish ellipses from the detected crops. All predictions are resized (linear interpolation) to 128x128 rgb boxes.
 
 ![boxtractor](./media/boxtractor.jpg)
 
@@ -128,6 +128,10 @@ python src/create_segmentation_ds.py \
     --im_size=$IM_SIZE \
     --threshold=$THRESHOLD
 ```
+
+#### How to use box validator?
+
+I used box validator to filter out some of the FP detections. The detection scores were weighted down if the predicted segmentation mask's center-crop mean value was low.
 
 ## Additional modules
 
