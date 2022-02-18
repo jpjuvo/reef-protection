@@ -6,7 +6,7 @@
 
 The Great Barrier Reef is under threat, in part because of the overpopulation of one particular starfish – the coral-eating crown-of-thorns starfish (or COTS for short). To know where the COTS are, a traditional reef survey method, called "Manta Tow", is performed by a snorkel diver. While towed by a boat, they visually assess the reef. This method faces clear limitations, including operational scalability, data resolution, reliability, and traceability.
 
-To scale up video-based surveying systems, Australia’s national science agency, CSIRO has teamed up with Google to develop innovative machine learning technology that can analyse large image datasets accurately, efficiently, and in near real-time. This is a solution codebase for the challenge and it reached the [51st place](https://www.kaggle.com/c/tensorflow-great-barrier-reef/leaderboard?tab=private) (out of 2100).
+To scale up video-based surveying systems, Australia’s national science agency, CSIRO has teamed up with Google to develop innovative machine learning technology that can analyse large image datasets accurately, efficiently, and in near real-time. This is a solution codebase for the challenge and it reached the [47th place](https://www.kaggle.com/c/tensorflow-great-barrier-reef/leaderboard?tab=private) (out of 2100).
 
 ## Data statistics
 
